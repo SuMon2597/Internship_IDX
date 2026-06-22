@@ -1,1 +1,1 @@
-# Internship_IDX
+# Internship_IDX Exchange_Summer 2026
