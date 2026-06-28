@@ -46,4 +46,3 @@ Store raw MLS CSV files locally.
 Keep confidential data files out of GitHub.
 Use the updated CSV files for aggregation, cleaning, analysis, and Tableau dashboard development.
 
-- Preparing a market intelligence report
