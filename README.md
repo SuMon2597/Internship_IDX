@@ -46,8 +46,6 @@ Store raw MLS CSV files locally.
 Keep confidential data files out of GitHub.
 Use the updated CSV files for aggregation, cleaning, analysis, and Tableau dashboard development.
 
-# IDX Exchange Internship — Progress Summary
-
 ## Week 1 – Monthly Dataset Aggregation
 
 Built a Python script (`week1_aggregate.py`) that pulls all monthly CRMLS Listing and Sold CSV files (Jan 2024 – June 2026, 30 months each) from local folders, concatenates them into two combined datasets, and filters both to `PropertyType == 'Residential'` only.
