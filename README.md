@@ -46,3 +46,47 @@ Store raw MLS CSV files locally.
 Keep confidential data files out of GitHub.
 Use the updated CSV files for aggregation, cleaning, analysis, and Tableau dashboard development.
 
+# IDX Exchange Internship — Progress Summary
+
+## Week 1 – Monthly Dataset Aggregation
+
+Built a Python script (`week1_aggregate.py`) that pulls all monthly CRMLS Listing and Sold CSV files (Jan 2024 – June 2026, 30 months each) from local folders, concatenates them into two combined datasets, and filters both to `PropertyType == 'Residential'` only.
+
+**Key details:**
+- Handled a data quirk where some months only have a `"_filled"` file variant with 2 extra trailing columns — these were trimmed automatically so schemas matched before concatenation.
+- Ran a diagnostic check comparing an exact-match filter against a case/whitespace-normalized match, confirming no near-miss `PropertyType` variants were being silently dropped by the filter.
+
+**Outputs:**
+
+| File | Description |
+|---|---|
+| `Combined_Listing.csv` | 967,164 rows → 615,646 rows after Residential filter |
+| `Combined_Sold.csv` | 665,440 rows → 447,987 rows after Residential filter |
+| `week1_aggregation_row_counts.csv` | Per-file row-count log for both datasets |
+
+---
+
+## Weeks 2–3, Part 1 – Dataset Structuring and Validation
+
+Built a second script (`week2_3_validation.py`) that reads the Week 1 combined outputs and documents the data across four areas.
+
+### Dataset Understanding
+- Row/column counts and data types per dataset
+- Heuristic classification of columns into market-analysis vs. metadata fields
+
+### Missing Value Analysis
+- Full null-count summary table per column
+- Separate report flagging any columns above 90% missing
+
+### Numeric Distribution Review
+- Percentile statistics (min, p25, median, mean, p75, p99, max) for 9 key fields: `ClosePrice`, `ListPrice`, `OriginalListPrice`, `LivingArea`, `LotSizeAcres`, `BedroomsTotal`, `BathroomsTotalInteger`, `DaysOnMarket`, `YearBuilt`
+- IQR-based extreme-outlier counts for each field
+- Histogram + boxplot image generated per field, per dataset
+
+### Filtering Confirmation
+- Re-verified the Week 1 Residential filter held in the combined files
+- Documented unique property types found
+- Saved the validated dataset as a new CSV
+
+**Outputs:** 34 files total (16 CSVs + 18 PNGs) covering both Listing and Sold datasets.
+
