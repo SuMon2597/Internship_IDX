@@ -88,3 +88,24 @@ Built a second script (`week2_3_validation.py`) that reads the Week 1 combined o
 
 **Outputs:** 34 files total (16 CSVs + 18 PNGs) covering both Listing and Sold datasets.
 
+---
+
+## Weeks 2-3, Part 2 – Mortgage Rate Enrichment
+
+Built a second script (`week2_3_mortgage_enrichment.py`) that enriches the Week 1 combined outputs with the national 30-year fixed mortgage rate from FRED, joined on a monthly key.
+
+### Rate Retrieval
+- Fetched the MORTGAGE30US series directly from FRED
+- Coerced dates and rates to proper numeric/datetime types, dropping any unparseable weekly readings before averaging
+- Resampled weekly rates to monthly averages
+
+### Dataset Enrichment
+- Sold dataset keyed off `CloseDate`; Listing dataset keyed off `ListingContractDate`
+- Left-merged the monthly rate onto both combined datasets
+
+### Validation
+- Confirmed no null `rate_30yr_fixed` values remain after the merge
+- Merge is a hard requirement — if any row is left unmatched, the run fails and no output is saved, rather than saving a partially-matched file
+
+**Outputs**: 3 files total (1 monthly rates CSV + 2 enriched datasets covering both Listing and Sold).
+
