@@ -108,4 +108,71 @@ Built a second script (`week2_3_mortgage_enrichment.py`) that enriches the Week 
 - Merge is a hard requirement — if any row is left unmatched, the run fails and no output is saved, rather than saving a partially-matched file
 
 **Outputs**: 3 files total (1 monthly rates CSV + 2 enriched datasets covering both Listing and Sold).
+## Weeks 4-5 – Data Cleaning and Preparation
+
+Built a script (`week4_5_data_cleaning.py`) that takes the Week 2-3 mortgage-enriched outputs (`Sold_With_Rates.csv` / `Listing_With_Rates.csv`) and prepares an analysis-ready dataset. Nothing is deleted - bad or unusual records are flagged with `True`/`False` columns instead, so every original row remains visible for review.
+
+### Date Conversion
+- Converted `CloseDate`, `PurchaseContractDate`, `ListingContractDate`, and `ContractStatusChangeDate` to proper datetime, only where present in each dataset
+
+### Column Cleanup
+- Dropped reviewed redundant/unnecessary columns via `COLUMNS_TO_DROP` (empty by default until manually reviewed against Week 2-3's `{name}_field_categories.csv`)
+
+### Missing Value Handling
+- Core fields retained even if partially missing, per Weeks 2-3 guidance
+- No columns dropped for missingness alone; columns above 90% missing are reported, not removed
+
+### Numeric Typing
+- Ensured `ClosePrice`, `ListPrice`, `OriginalListPrice`, `LivingArea`, `LotSizeAcres`, `BedroomsTotal`, `BathroomsTotalInteger`, `DaysOnMarket`, `YearBuilt` are properly typed as numeric
+
+### Invalid Value Flags (flagged, not removed)
+- `invalid_closeprice_flag` - ClosePrice <= 0
+- `invalid_livingarea_flag` - LivingArea <= 0
+- `invalid_daysonmarket_flag` - DaysOnMarket < 0
+- `invalid_bedrooms_flag` - BedroomsTotal < 0
+- `invalid_bathrooms_flag` - BathroomsTotalInteger < 0
+
+### Date Consistency Flags
+- `listing_after_close_flag` - ListingContractDate > CloseDate
+- `purchase_after_close_flag` - PurchaseContractDate > CloseDate
+- `negative_timeline_flag` - ListingContractDate > PurchaseContractDate
+
+### Geographic Quality Flags
+- `missing_coordinates_flag` - Latitude or Longitude is null
+- `sentinel_zero_flag` - Latitude = 0 or Longitude = 0
+- `positive_longitude_flag` - Longitude > 0 (should be negative for CA)
+- `implausible_coordinates_flag` - coordinates fall outside a CA bounding box (lat 32.0-42.5, lon -124.5 to -114.0)
+
+**Outputs:** 10 files total (5 per dataset - `{name}_Cleaned.csv`, `{name}_row_counts.csv`, `{name}_dtype_confirmation.csv`, `{name}_date_consistency_flags.csv`, `{name}_geographic_quality.csv`) covering both Listing and Sold datasets.
+
+---
+
+## Week 6 – Feature Engineering and Market Metrics
+
+Built a script (`week6_feature_engineering.py`) that takes the Week 4-5 cleaned outputs (`Sold_Cleaned.csv` / `Listing_Cleaned.csv`) and engineers the key market indicators that power the Tableau dashboards. Full engineering runs on the Sold dataset, since most metrics depend on `ClosePrice`, `OriginalListPrice`, `PurchaseContractDate`, and `CloseDate` - fields generally only populated for sold records; only what's actually present is computed for Listings.
+
+### Price-Based Metrics
+- `price_ratio_vs_listprice` = ClosePrice / ListPrice (standard sold-to-list ratio)
+- `price_ratio_vs_originallistprice` = ClosePrice / OriginalListPrice (the handbook's "Price Ratio" row, literally)
+- `close_to_orig_list_ratio` = ClosePrice / OriginalListPrice - **identical formula** to the row above per the handbook text; saved under both names since the handbook lists them as two separate metrics. Needs confirmation from the program on which one dashboards should actually use.
+- `price_per_sqft` = ClosePrice / LivingArea
+
+### Time-Based Metrics
+- `Year`, `Month`, `YrMo` - derived from CloseDate
+- `listing_to_contract_days` = PurchaseContractDate - ListingContractDate
+- `contract_to_close_days` = CloseDate - PurchaseContractDate
+- `DaysOnMarket` - raw field, carried through and confirmed numeric
+
+### Segment Analysis
+Reusable `segment_summary()` helper groups by given columns and reports record count plus median/mean for every engineered + core metric present:
+- PropertyType / PropertySubType
+- CountyOrParish / MLSAreaMajor
+- ListOfficeName / BuyerOfficeName
+
+### School District Spatial Join (optional, Sold only)
+- Point-in-polygon join of property Latitude/Longitude against CA Dept. of Education 2024-25 school district boundaries (data.ca.gov GeoJSON)
+- Requires `geopandas` + `shapely` (not standard pandas dependencies) - isolated so the rest of the script still runs and saves output if they aren't installed
+- Only run on the Sold dataset (`run_school_districts=True`); toggle for Listing if needed
+
+**Outputs:** Per dataset - `{name}_engineered_sample.csv` (first 25 rows, new columns only), `{name}_Engineered.csv` (full dataset), `{name}_segment_PropertyType.csv`, `{name}_segment_County.csv`, `{name}_segment_Office.csv`. Plus `Sold_with_school_districts.csv` for the Sold dataset only.
 
