@@ -176,3 +176,15 @@ Reusable `segment_summary()` helper groups by given columns and reports record c
 
 **Outputs:** Per dataset - `{name}_engineered_sample.csv` (first 25 rows, new columns only), `{name}_Engineered.csv` (full dataset), `{name}_segment_PropertyType.csv`, `{name}_segment_County.csv`, `{name}_segment_Office.csv`. Plus `Sold_with_school_districts.csv` for the Sold dataset only.
 
+## Week 7 - Outlier Detection and Data Quality
+
+Built a script (`week7_outlier_detection_New.py`) to detect outliers in the Week 6 Sold and Listing datasets using the **Interquartile Range (IQR)** method. The script checks `ClosePrice`, `LivingArea`, `DaysOnMarket`, and key price-ratio fields. :contentReference[oaicite:0]{index=0}
+
+Outliers are **flagged instead of permanently deleted**, and a separate filtered dataset is created for Tableau analysis. :contentReference[oaicite:1]{index=1}
+
+The script also compares:
+- Row counts before and after filtering
+- Median values before and after
+- IQR bounds used for each field :contentReference[oaicite:2]{index=2}
+
+**Outputs:** 6 files total — flagged dataset, filtered clean dataset, and before/after comparison for both Sold and Listing data.
